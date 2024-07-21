@@ -23,19 +23,6 @@ set(SOURCE_FILES
     src/mm_plugin.h
     src/mm_logger.cpp
     src/mm_logger.h
-    src/logger/detailed.cpp
-    src/logger/detailed.hpp
-    src/logger/error.cpp
-    src/logger/error.hpp
-    src/logger/message.cpp
-    src/logger/message.hpp
-    src/logger/scope.cpp
-    src/logger/scope.hpp
-    src/logger/throw_assert.cpp
-    src/logger/throw_assert.hpp
-    src/logger/warning.cpp
-    src/logger/warning.hpp
-    src/logger/ilogging.hpp
     external/hl2sdk-cs2/tier1/convar.cpp
 )
 
@@ -47,22 +34,30 @@ if(LINUX)
     )
 endif()
 
+set(EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
+
 ## Generate protobuf source & headers
 if(LINUX)
-    set(PROTOC_EXECUTABLE ${CMAKE_CURRENT_SOURCE_DIR}/external/hl2sdk-cs2/devtools/bin/linux/protoc)
+    set(PROTOC_EXECUTABLE ${EXTERNAL_DIR}/hl2sdk-cs2/devtools/bin/linux/protoc)
 elseif(WIN32)
-    set(PROTOC_EXECUTABLE ${CMAKE_CURRENT_SOURCE_DIR}/external/hl2sdk-cs2/devtools/bin/protoc.exe)
+    set(PROTOC_EXECUTABLE ${EXTERNAL_DIR}/hl2sdk-cs2/devtools/bin/protoc.exe)
 endif()
 
 add_custom_command(
         OUTPUT protobuf_output_stamp
         COMMAND ${PROTOC_EXECUTABLE} --proto_path=thirdparty/protobuf-3.21.8/src --proto_path=common --cpp_out=common common/network_connection.proto
         COMMENT "Generating protobuf file"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/hl2sdk-cs2
+        WORKING_DIRECTORY ${EXTERNAL_DIR}/hl2sdk-cs2
         VERBATIM
 )
 
 SET(SOURCE_FILES ${SOURCE_FILES} protobuf_output_stamp)
+
+# Logger
+set(LOGGER_DIR "${EXTERNAL_DIR}/logger")
+set(LOGGER_BINARY_DIR "logger")
+set(LOGGER_INCLUDE_DIR "${LOGGER_DIR}/include")
+add_subdirectory(${LOGGER_DIR} ${LOGGER_BINARY_DIR})
 
 # Sources
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${NATIVES_SOURCES} ${CONVERSIONS_SOURCES} ${CONVERSIONS_HEADERS})
@@ -73,6 +68,8 @@ target_include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/src/core/cs2_sdk
         ${CMAKE_BINARY_DIR}/exports
+
+        ${LOGGER_INCLUDE_DIR}
 )
 
 if(LINUX)
@@ -90,7 +87,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         PLUGIFY_PROJECT_VERSION="${PLUGIFY_PROJECT_VERSION}")
 
 # Libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE ${PLUGIFY_LINK_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PLUGIFY_LINK_LIBRARIES} ${LOGGER_BINARY_DIR})
 
 if(APPLE)
     target_link_options(${PROJECT_NAME} PRIVATE "-Wl,-exported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/sym/exported_symbols.lds")

@@ -8,3 +8,6 @@
 	path = external/hl2sdk-cs2
 	url = https://github.com/Wend4r/hl2sdk.git
 	branch = cs2
+[submodule "external/logger"]
+	path = external/logger
+	url = https://github.com/Wend4r/s2u-logger.git

@@ -4,13 +4,12 @@
 #include <string>
 
 #include <tier0/dbg.h>
-#include <tier0/logging.h>
 
-#include "logger/detailed.hpp"
-#include "logger/error.hpp"
-#include "logger/message.hpp"
-#include "logger/throw_assert.hpp"
-#include "logger/warning.hpp"
+#include <logger/detailed.hpp>
+#include <logger/error.hpp>
+#include <logger/message.hpp>
+#include <logger/throw_assert.hpp>
+#include <logger/warning.hpp>
 
 #include <plugify/log.h>
 

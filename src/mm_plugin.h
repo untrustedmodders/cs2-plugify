@@ -15,7 +15,6 @@
 #pragma once
 
 #include <ISmmPlugin.h>
-
 #include "mm_logger.h"
 
 namespace plugify
